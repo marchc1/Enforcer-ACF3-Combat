@@ -1,6 +1,6 @@
-local EXTENSION = Enforcer.Extension "march.block_entityuse_automation"
+local EXTENSION = Enforcer.Extension "march.restrict_entityuse_automation"
 
-EXTENSION.Name   = "Block Entity:Use Automation"
+EXTENSION.Name   = "Restrict Entity:Use Automation to Distance"
 EXTENSION.Author = "March"
 
 EXTENSION.Compatibility = {
@@ -13,15 +13,53 @@ local detours = Enforcer.Detours
 
 function EXTENSION:Register()
     if SERVER then
-        detours.AddSENTDetour("gmod_wire_user", "TriggerInput", "block_usage", function()
+        local max_distance = 250
+        local function block(player, target)
+            if not IsValid(player) then return false end
+            if not IsValid(target) then return false end
+
+            local dist = player:GetPos():Distance(target:GetPos())
+            if dist < max_distance then return end
+
+            Enforcer.Notify("Automation of the using of entities is blocked beyond " .. max_distance .. " source units.")
             return false
+        end
+
+        detours.AddSENTDetour("gmod_wire_user", "TriggerInput", "block_usage", function(self, iname, ivalue)
+            if iname == "Fire" and ivalue ~= 0 then
+                local start = self:GetPos()
+                local ply = self:GetPlayer()
+
+                local trace = util.TraceLine( {
+                    start = start,
+                    endpos = start + (self:GetUp() * self:GetBeamLength()),
+                    filter = { self },
+                })
+
+                return block(ply, trace.Entity)
+            end
         end)
-        detours.AddExpression2Detour("e:use()", "block_usage", function()
-            return false end
-        )
-        detours.AddStarfallTypeMethodDetour("Entity", "use", "block_usage", detours.DetourObject(function()
-            return false
-        end), nil, false, false)
+        detours.AddExpression2Detour("e:use()", "block_usage", function(e2, args)
+            return block(e2.player, args[1])
+        end)
+        detours.AddStarfallTypeMethodDetour("Entity", "use", "block_usage", function(sf)
+            -- I HATE THIS SO MUCH: ***NEED*** to find a better way to get starfall instance in these detours!!!
+
+            local supertype = sf
+            for i = 1, 100 do
+                local ts = debug.getmetatable(supertype)
+                if ts == nil then break end
+                ts = ts.supertype
+                if ts == nil then break end
+                supertype = ts
+            end
+
+            for instance, _ in pairs(SF.allInstances) do
+                if instance.Types.Entity.Methods == supertype.Methods then
+                    return block(instance.player, supertype.sf2sensitive[sf])
+                end
+            end
+        end)
     end
 end
 

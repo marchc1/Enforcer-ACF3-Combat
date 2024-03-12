@@ -145,7 +145,7 @@ function EXTENSION:Register()
         local vec = Vector(impulse[1], impulse[2], impulse[3])
         return applyForceCenterLog(ent, vec)
     end), nil, false, false)
-    
+
     detours.AddStarfallTypeMethodDetour("PhysObj", "applyForceCenter", "log_applyforce", detours.DetourObject(function(sfent, impulse)
         local ent = debug.getmetatable(sfent).sf2sensitive[sfent]
         local vec = Vector(impulse[1], impulse[2], impulse[3])
