@@ -142,13 +142,14 @@ function EXTENSION:Register()
 
     detours.AddStarfallTypeMethodDetour("Entity", "applyForceCenter", "log_applyforce", detours.DetourObject(function(sfent, impulse)
         local ent = debug.getmetatable(sfent).sf2sensitive[sfent]
-
-        if not IsValid(ent) then return end
-        if not IsValid(ent:GetPhysicsObject()) then return end
-
-        if center_applyforce[ent] == nil then center_applyforce[ent] = {} end
-        local applyforce_table = center_applyforce[ent]
-        applyforce_table[#applyforce_table + 1] = {impulse = Vector(impulse[1], impulse[2], impulse[3]) / ent:GetPhysicsObject():GetMass()}
+        local vec = Vector(impulse[1], impulse[2], impulse[3])
+        return applyForceCenterLog(ent, vec)
+    end), nil, false, false)
+    
+    detours.AddStarfallTypeMethodDetour("PhysObj", "applyForceCenter", "log_applyforce", detours.DetourObject(function(sfent, impulse)
+        local ent = debug.getmetatable(sfent).sf2sensitive[sfent]
+        local vec = Vector(impulse[1], impulse[2], impulse[3])
+        return applyForceCenterLog(ent, vec)
     end), nil, false, false)
 
     timer.Create("applyforcevisualizer.sync", 1 / 10, 0, function()
