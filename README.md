@@ -2,4 +2,5 @@ Enforcer extension for ACF-3 combat. Detours Expression 2, Starfall and Wiremod 
 
 Currently has the following features (todo: add disabling extensions to Enforcer base!)
 - Applyforce Visualization, to help players detect mobility assistance
-- Block Entity:Use() Automation, blocks e:use() and wire users from doing anything.
+- Restrict Entity:Use() Automation, restricts e:use() (E2 and SF) and wire users from doing anything unless within 250 source units of the entity.
+
