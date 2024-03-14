@@ -42,23 +42,8 @@ function EXTENSION:Register()
         detours.AddExpression2Detour("e:use()", "block_usage", function(e2, args)
             return block(e2.player, args[1])
         end)
-        detours.AddStarfallTypeMethodDetour("Entity", "use", "block_usage", function(sf)
-            -- I HATE THIS SO MUCH: ***NEED*** to find a better way to get starfall instance in these detours!!!
-
-            local supertype = sf
-            for i = 1, 100 do
-                local ts = debug.getmetatable(supertype)
-                if ts == nil then break end
-                ts = ts.supertype
-                if ts == nil then break end
-                supertype = ts
-            end
-
-            for instance, _ in pairs(SF.allInstances) do
-                if instance.Types.Entity.Methods == supertype.Methods then
-                    return block(instance.player, supertype.sf2sensitive[sf])
-                end
-            end
+        detours.AddStarfallTypeMethodDetour("Entity", "use", "block_usage", function(instance, ent)
+            return block(instance.player, instance.Types.Entity.Unwrap(ent))
         end)
     end
 end

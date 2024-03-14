@@ -140,19 +140,19 @@ function EXTENSION:Register()
         return applyForceCenterLog(ent, vec)
     end)
 
-    detours.AddStarfallTypeMethodDetour("Entity", "applyForceCenter", "log_applyforce", detours.DetourObject(function(sfent, impulse)
+    detours.AddStarfallTypeMethodDetour("Entity", "applyForceCenter", "log_applyforce", detours.DetourObject(function(instance, sfent, impulse)
         local ent = debug.getmetatable(sfent).sf2sensitive[sfent]
         local vec = Vector(impulse[1], impulse[2], impulse[3])
         return applyForceCenterLog(ent, vec)
     end), nil, false, false)
 
-    detours.AddStarfallTypeMethodDetour("PhysObj", "applyForceCenter", "log_applyforce", detours.DetourObject(function(sfent, impulse)
+    detours.AddStarfallTypeMethodDetour("PhysObj", "applyForceCenter", "log_applyforce", detours.DetourObject(function(instance, sfent, impulse)
         local ent = debug.getmetatable(sfent).sf2sensitive[sfent]
         local vec = Vector(impulse[1], impulse[2], impulse[3])
         return applyForceCenterLog(ent, vec)
     end), nil, false, false)
 
-    timer.Create("applyforcevisualizer.sync", 1 / 10, 0, function()
+    Enforcer.Library.Timers.RandomDelay("applyforcevisualizer.sync", 1 / 10, 1 / 15, function()
         net.Start("applyforcevisualizersync")
 
         net.WriteUInt(table.Count(center_applyforce), 16)
@@ -179,7 +179,6 @@ function EXTENSION:Register()
         net.Send(plys)
 
         center_applyforce = {}
-        timer.Adjust("applyforcevisualizer.sync", math.Rand(1 / 10, 1 / 15))
     end)
 end
 
