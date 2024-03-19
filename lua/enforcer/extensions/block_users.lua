@@ -21,7 +21,7 @@ function EXTENSION:Register()
             local dist = player:GetPos():Distance(target:GetPos())
             if dist < max_distance then return end
 
-            Enforcer.Notify("Automation of the using of entities is blocked beyond " .. max_distance .. " source units.")
+            Enforcer.Notify("Automation of the using of entities is blocked beyond " .. max_distance .. " source units.", nil, player)
             return false
         end
 
