@@ -122,6 +122,8 @@ function EXTENSION:Register()
             return false
         end
 
+        if not IsValid(ent) or not IsValid(physobj) then return false end
+
         if center_applyforce[ent] == nil then center_applyforce[ent] = {} end
         local applyforce_table = center_applyforce[ent]
 
